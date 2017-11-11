@@ -1,0 +1,10 @@
+*.iml
+.idea/
+.gradle/
+gradle/
+build/
+out/
+logs/
+lib/
+*.class
+*.log
