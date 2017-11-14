@@ -43,9 +43,7 @@ public class Message {
 
     public Message accept(long seqNr) { return new Message(type, seqNr, sender, key, value, replica); }
 
-    public Message ack() {
-        return new Message(Type.ACK, seqNr, sender, key, value, replica);
-    }
+    public Message ack() { return new Message(Type.ACK, seqNr, sender, key, value, replica); }
 
     public Message replica(Address master) {
         return new Message(type, seqNr, master, key, value, true);

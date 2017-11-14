@@ -6,7 +6,7 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="edu.kv" level="DEBUG" additivity="false">
+        <Logger name="edu.kv" level="INFO" additivity="false">
             <AppenderRef ref="CONSOLE" />
         </Logger>
         <Logger name="edu.membership" level="INFO" additivity="false">

@@ -105,8 +105,8 @@ class KVNodeImplTest {
         Message message = new Message(Message.Type.CREATE, 0L, client, "a", "a");
         node.handle(message);
 
-        rep1Node.handle(message.replica(self));
-        rep2Node.handle(message.replica(self));
+        rep1Node.handle(message.replica(self).accept(1));
+        rep2Node.handle(message.replica(self).accept(1));
 
         node.handle(selfListener.queue().poll().keyval);
         node.handle(selfListener.queue().poll().keyval);
@@ -136,8 +136,8 @@ class KVNodeImplTest {
         Message message = new Message(Message.Type.CREATE, 0L, client, "a", "a");
         node.handle(message);
 
-        rep1Node.handle(message.replica(self));
-        rep2Node.handle(message.replica(self));
+        rep1Node.handle(message.replica(self).accept(1));
+        rep2Node.handle(message.replica(self).accept(1));
 
         globalTime = TIMEOUT_MILLIS; //simulate timeout
 

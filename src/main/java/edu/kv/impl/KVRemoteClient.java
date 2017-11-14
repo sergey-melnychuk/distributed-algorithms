@@ -22,7 +22,7 @@ public class KVRemoteClient implements KVStore<String, String> {
 
     private final Network.Listener listener;
 
-    private final long TIMEOUT_MILLIS = 300;
+    private static final long TIMEOUT_MILLIS = 300;
 
     public KVRemoteClient(Address self, List<Address> remote, Network network) {
         this.self = self;
@@ -30,8 +30,6 @@ public class KVRemoteClient implements KVStore<String, String> {
         this.network = network;
         this.listener = network.listen(self);
     }
-
-    private final Random random = new Random();
 
     private void inc() {
         seq += 1;
@@ -48,7 +46,7 @@ public class KVRemoteClient implements KVStore<String, String> {
     private void send(Message.Type type, String key, String val) {
         inc();
         Message msg = new Message(type, seq, self, key, val);
-        Address address = remote.get(random.nextInt(remote.size()));
+        Address address = remote.get((int) (seq % remote.size()));
         network.send(address, Payload.of(msg));
         logger.debug("Sent {}", msg);
     }
@@ -58,7 +56,7 @@ public class KVRemoteClient implements KVStore<String, String> {
         while (System.currentTimeMillis() - now < TIMEOUT_MILLIS) {
             Payload payload = listener.queue().poll();
             if (payload != null) {
-                logger.debug("Received {} in {} ms", payload, System.currentTimeMillis() - now);
+                logger.info("Received in {} ms: {}", System.currentTimeMillis() - now, payload);
                 return payload.keyval;
             }
         }
@@ -113,7 +111,7 @@ public class KVRemoteClient implements KVStore<String, String> {
                 ),
                 new UdpNetwork());
 
-        for (int i=0; i<1; i++) {
+        for (int i=0; i<100; i++) {
             String key = UUID.randomUUID().toString();
             boolean cr = client.create(key, "0");
             String r1 = Optional.ofNullable(client.read(key)).orElse("null");

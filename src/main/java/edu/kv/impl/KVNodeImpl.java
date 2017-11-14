@@ -50,11 +50,12 @@ public class KVNodeImpl implements KVNode {
 
     private void send(Address address, Message message) {
         network.send(address, Payload.of(message));
+        logger.debug("[{}] Sent {} to {}", this.address, message, address);
     }
 
     private void pend(Message message, long now) {
         pendingRequests.put(message.seqNr, new Request(message, now,1));
-        logger.debug("Pending request: {}", message);
+        logger.debug("[{}] Pending request: {}", this.address, message);
     }
 
     private void check(Message message, long now) {
@@ -65,17 +66,17 @@ public class KVNodeImpl implements KVNode {
             final Request req = pendingRequests.get(message.seqNr);
             if (now - req.ts >= timeoutMillis) {
                 // Pending request failed due to timestamp
+                logger.debug("[{}] Timeout for: {}", this.address, req);
                 pendingRequests.remove(message.seqNr);
                 send(req.msg.sender, message.fail(address));
-                logger.debug("Timeout for: {}", req);
             } else if (req.count + 1 >= minimumQuorum) {
                 // Quorum reached for the request
+                logger.debug("[{}] Ack received and quorum reached: {}", this.address, req);
                 pendingRequests.remove(message.seqNr);
                 send(req.msg.sender, message.ok(address));
-                logger.debug("Ack received and quorum reached: {}", req);
             } else {
+                logger.debug("[{}] Ack received: {}", this.address, req);
                 pendingRequests.replace(message.seqNr, req.inc());
-                logger.debug("Ack received: {}", req);
             }
         }
     }
@@ -83,7 +84,7 @@ public class KVNodeImpl implements KVNode {
     private void replicate(Message message, long now) {
         List<Address> targets = replication.pick(message.key, now);
         if (targets.size() < replicationFactor) {
-            logger.error("Not enough replicas in the group: " + ring.ordered(now).size());
+            logger.error("[{}] Not enough replicas in the group: {}", this.address, ring.ordered(now).size());
             send(message.sender, message.fail(address));
         } else if (targets.get(0).equals(address)) {
             // Replicate the key, you're the key's master
@@ -91,13 +92,13 @@ public class KVNodeImpl implements KVNode {
             pend(message, now);
             Message replica = message.replica(address);
             for (int i=1; i<targets.size(); i++) {
-                logger.debug("Send replication to {}", targets.get(i));
+                logger.debug("[{}] Send replication to {}", this.address, targets.get(i));
                 send(targets.get(i), replica);
             }
         } else {
             // Forward the message to key's master node
+            logger.debug("[{}] Forwarding request to {}", this.address, targets.get(0));
             send(targets.get(0), message);
-            logger.debug("Forwarding request to {}", targets.get(0));
         }
     }
 
@@ -105,39 +106,38 @@ public class KVNodeImpl implements KVNode {
         switch (message.type) {
             case READ:
                 String val = kv.read(message.key);
-                logger.debug("read made key={} value={}", message.key, val);
+                logger.debug("[{}] read made key={} value={}", this.address, message.key, val);
                 return message.value(val);
             case CREATE:
                 kv.create(message.key, message.value);
-                logger.debug("create saved key={} value={}", message.key, message.value);
+                logger.debug("[{}] create saved key={} value={}", this.address, message.key, message.value);
                 return message.ack();
             case UPDATE:
                 kv.update(message.key, message.value);
-                logger.debug("update saved key={} value={}", message.key, message.value);
+                logger.debug("[{}] update saved key={} value={}", this.address, message.key, message.value);
                 return message.ack();
             case DELETE:
                 kv.delete(message.key);
-                logger.debug("delete saved key={}", message.key);
+                logger.debug("[{}] delete saved key={}", this.address, message.key);
                 return message.ack();
             default:
-                throw new IllegalStateException("Unexpected message: " + message);
+                throw new IllegalStateException("Unexpected message: {}" + message);
         }
     }
 
     @Override
-    public void handle(Message m) {
-        logger.debug("[{}] Received: {}", address, m);
+    public void handle(Message message) {
+        logger.debug("[{}] Received: {}", address, message);
         final long now = tick();
 
-        if (m.type == Message.Type.ACK) {
-            check(m, now);
+        if (message.type == Message.Type.ACK) {
+            check(message, now);
         } else {
-            Message message = m.accept(seq);
             if (message.replica) {
                 Message reply = apply(message);
                 send(message.sender, reply);
             } else {
-                replicate(message, now);
+                replicate(message.accept(seq), now);
             }
         }
     }
