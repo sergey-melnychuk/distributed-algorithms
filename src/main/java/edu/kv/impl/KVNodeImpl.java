@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
@@ -53,27 +54,33 @@ public class KVNodeImpl implements KVNode {
         logger.debug("[{}] Sent {} to {}", this.address, message, address);
     }
 
-    private void pend(Message message, long now) {
-        pendingRequests.put(message.seqNr, new Request(message, now,1));
+    private void pend(Message message, long now, long seq) {
+        pendingRequests.put(seq, new Request(message, now,1));
         logger.debug("[{}] Pending request: {}", this.address, message);
     }
 
-    private void check(Message message, long now) {
+    private void cleanup(long now) {
+        for (Map.Entry<Long, Request> req : pendingRequests.entrySet()) {
+            if (now - req.getValue().ts >= timeoutMillis) {
+                // Pending request failed due to timestamp
+                logger.debug("[{}] Timeout for: {}", this.address, req);
+                pendingRequests.remove(req.getKey());
+                send(req.getValue().msg.sender, req.getValue().msg.fail(address));
+            }
+        }
+    }
+
+    private void check(Message message) {
         if (message.type != Message.Type.ACK) {
             return;
         }
         if (pendingRequests.containsKey(message.seqNr)) {
             final Request req = pendingRequests.get(message.seqNr);
-            if (now - req.ts >= timeoutMillis) {
-                // Pending request failed due to timestamp
-                logger.debug("[{}] Timeout for: {}", this.address, req);
-                pendingRequests.remove(message.seqNr);
-                send(req.msg.sender, message.fail(address));
-            } else if (req.count + 1 >= minimumQuorum) {
+            if (req.count + 1 >= minimumQuorum) {
                 // Quorum reached for the request
                 logger.debug("[{}] Ack received and quorum reached: {}", this.address, req);
+                send(req.msg.sender, req.msg.value(message.value).ok(address));
                 pendingRequests.remove(message.seqNr);
-                send(req.msg.sender, message.ok(address));
             } else {
                 logger.debug("[{}] Ack received: {}", this.address, req);
                 pendingRequests.replace(message.seqNr, req.inc());
@@ -89,8 +96,8 @@ public class KVNodeImpl implements KVNode {
         } else if (targets.get(0).equals(address)) {
             // Replicate the key, you're the key's master
             apply(message);
-            pend(message, now);
-            Message replica = message.replica(address);
+            pend(message, now, seq);
+            Message replica = message.replica(address).accept(seq);
             for (int i=1; i<targets.size(); i++) {
                 logger.debug("[{}] Send replication to {}", this.address, targets.get(i));
                 send(targets.get(i), replica);
@@ -130,14 +137,15 @@ public class KVNodeImpl implements KVNode {
         logger.debug("[{}] Received: {}", address, message);
         final long now = tick();
 
+        cleanup(now);
         if (message.type == Message.Type.ACK) {
-            check(message, now);
+            check(message);
         } else {
             if (message.replica) {
                 Message reply = apply(message);
                 send(message.sender, reply);
             } else {
-                replicate(message.accept(seq), now);
+                replicate(message, now);
             }
         }
     }

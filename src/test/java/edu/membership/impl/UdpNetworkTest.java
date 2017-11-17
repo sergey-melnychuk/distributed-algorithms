@@ -45,7 +45,7 @@ class UdpNetworkTest {
             System.out.println("processing: " + p);
             network.send(sender, p);
             try {
-                Thread.sleep(1000);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 /* ignore */
             }

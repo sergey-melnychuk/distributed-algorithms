@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 public class KVRemoteClient implements KVStore<String, String> {
     private static final Logger logger = LogManager.getLogger(KVRemoteClient.class);
@@ -18,16 +19,18 @@ public class KVRemoteClient implements KVStore<String, String> {
     private final Address self;
     private final List<Address> remote;
     private final Network network;
+    private final Supplier<Long> clock;
     private long seq = 0L;
 
     private final Network.Listener listener;
 
     private static final long TIMEOUT_MILLIS = 300;
 
-    public KVRemoteClient(Address self, List<Address> remote, Network network) {
+    public KVRemoteClient(Address self, List<Address> remote, Network network, Supplier<Long> clock) {
         this.self = self;
         this.remote = remote;
         this.network = network;
+        this.clock = clock;
         this.listener = network.listen(self);
     }
 
@@ -52,8 +55,8 @@ public class KVRemoteClient implements KVStore<String, String> {
     }
 
     private Message recv() {
-        final long now = System.currentTimeMillis();
-        while (System.currentTimeMillis() - now < TIMEOUT_MILLIS) {
+        final long now = clock.get();
+        while (clock.get() - now < TIMEOUT_MILLIS) {
             Payload payload = listener.queue().poll();
             if (payload != null) {
                 logger.info("Received in {} ms: {}", System.currentTimeMillis() - now, payload);
@@ -109,7 +112,7 @@ public class KVRemoteClient implements KVStore<String, String> {
                         new RemoteAddress("127.0.0.1", 10020),
                         new RemoteAddress("127.0.0.1", 10030)
                 ),
-                new UdpNetwork());
+                new UdpNetwork(), System::currentTimeMillis);
 
         for (int i=0; i<100; i++) {
             String key = UUID.randomUUID().toString();

@@ -57,7 +57,7 @@ class KVNodeImplTest {
         Message message = new Message(Message.Type.CREATE, 0L, client, "key", "val");
         node.handle(message);
 
-        assertEquals(message.fail(self).accept(1), clientListener.queue().peek().keyval);
+        assertEquals(message.fail(self), clientListener.queue().peek().keyval);
     }
 
     @Test
@@ -111,7 +111,7 @@ class KVNodeImplTest {
         node.handle(selfListener.queue().poll().keyval);
         node.handle(selfListener.queue().poll().keyval);
 
-        assertEquals(message.ok(self).replica(self).accept(1), clientListener.queue().peek().keyval);
+        assertEquals(message.ok(self), clientListener.queue().peek().keyval);
     }
 
     @Test
@@ -144,6 +144,6 @@ class KVNodeImplTest {
         node.handle(selfListener.queue().poll().keyval);
         node.handle(selfListener.queue().poll().keyval);
 
-        assertEquals(message.fail(self).replica(self).accept(1), clientListener.queue().peek().keyval);
+        assertEquals(message.fail(self), clientListener.queue().peek().keyval);
     }
 }
