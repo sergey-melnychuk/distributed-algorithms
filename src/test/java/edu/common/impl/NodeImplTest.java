@@ -70,9 +70,10 @@ class NodeImplTest {
         assertEquals(members, rep2Node.peers());
 
         String key = "17bc3e00-9fb0-4c5a-8c54-ea9af782a678";
-        String val = "4bbca841-6935-4e8b-96f6-a783dd41d6ae";
+        String val1 = "4bbca841-6935-4e8b-96f6-a783dd41d6ae";
+        String val2 = "ce751a98-daa5-4e07-b1c7-cccf3296022d";
 
-        Message createMessage = new Message(Message.Type.CREATE, 0L, clientAddr, key, val, false);
+        Message createMessage = new Message(Message.Type.CREATE, 0L, clientAddr, key, val1, false);
         assertTrue(client.queue().isEmpty());
         network.send(selfAddr, Payload.of(createMessage));
         handle(selfNode, self, 1);
@@ -88,8 +89,43 @@ class NodeImplTest {
         handle(rep1Node, rep1, 1);
         handle(rep2Node, rep2, 1);
         handle(selfNode, self, 2);
-        assertEquals(readMessage.value(val).ok(selfAddr), client.queue().poll().keyval);
+        assertEquals(readMessage.value(val1).ok(selfAddr), client.queue().poll().keyval);
 
+        Message updateMessage = new Message(Message.Type.UPDATE, 3L, clientAddr, key, val2, false);
+        assertTrue(client.queue().isEmpty());
+        network.send(selfAddr, Payload.of(updateMessage));
+        handle(selfNode, self, 1);
+        handle(rep1Node, rep1, 1);
+        handle(rep2Node, rep2, 1);
+        handle(selfNode, self, 2);
+        assertEquals(updateMessage.value(val2).ok(selfAddr), client.queue().poll().keyval);
+
+        Message read2Message = new Message(Message.Type.READ, 4L, clientAddr, key, null, false);
+        assertTrue(client.queue().isEmpty());
+        network.send(selfAddr, Payload.of(read2Message));
+        handle(selfNode, self, 1);
+        handle(rep1Node, rep1, 1);
+        handle(rep2Node, rep2, 1);
+        handle(selfNode, self, 2);
+        assertEquals(read2Message.value(val2).ok(selfAddr), client.queue().poll().keyval);
+
+        Message deleteMessage = new Message(Message.Type.DELETE, 5L, clientAddr, key, null, false);
+        assertTrue(client.queue().isEmpty());
+        network.send(selfAddr, Payload.of(deleteMessage));
+        handle(selfNode, self, 1);
+        handle(rep1Node, rep1, 1);
+        handle(rep2Node, rep2, 1);
+        handle(selfNode, self, 2);
+        assertEquals(deleteMessage.ok(selfAddr), client.queue().poll().keyval);
+
+        Message read3Message = new Message(Message.Type.READ, 6L, clientAddr, key, null, false);
+        assertTrue(client.queue().isEmpty());
+        network.send(selfAddr, Payload.of(read3Message));
+        handle(selfNode, self, 1);
+        handle(rep1Node, rep1, 1);
+        handle(rep2Node, rep2, 1);
+        handle(selfNode, self, 2);
+        assertEquals(read3Message.ok(selfAddr), client.queue().poll().keyval);
     }
 
 }

@@ -65,7 +65,7 @@ public class Message {
                 (type == message.type) &&
                 sender.equals(message.sender) &&
                 key.equals(message.key) &&
-                value.equals(message.value);
+                (value == null) ? (message.value == null) : value.equals(message.value);
     }
 
     @Override
