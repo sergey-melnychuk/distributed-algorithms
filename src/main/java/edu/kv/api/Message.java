@@ -8,6 +8,7 @@ public class Message {
         CREATE,
         UPDATE,
         DELETE,
+        REPLICATE,
         ACK,
         OK,
         FAIL

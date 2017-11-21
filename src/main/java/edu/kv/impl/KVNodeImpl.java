@@ -7,11 +7,11 @@ import edu.kv.api.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class KVNodeImpl implements KVNode {
     private static final Logger logger = LogManager.getLogger(KVNodeImpl.class);
@@ -22,6 +22,7 @@ public class KVNodeImpl implements KVNode {
     private final Ring<String> ring;
     private final Replication<String, Address> replication;
     private final KVStore<String, String> kv;
+    private final Map<String, List<Address>> copies;
     private final long timeoutMillis;
     private final int replicationFactor;
     private final int minimumQuorum;
@@ -41,10 +42,11 @@ public class KVNodeImpl implements KVNode {
         this.clock = clock;
         this.ring = ring;
         this.replication = new RingReplication(replicationFactor, ring);
+        this.kv = new LocalKVStore();
+        this.copies = new HashMap<>();
         this.timeoutMillis = timeoutMillis;
         this.replicationFactor = replicationFactor;
         this.minimumQuorum = replicationFactor / 2 + 1;
-        this.kv = new LocalKVStore();
     }
 
     private long tick() {
@@ -96,13 +98,13 @@ public class KVNodeImpl implements KVNode {
     private void replicate(Message message, long now) {
         List<Address> targets = replication.pick(message.key, now);
         if (targets.size() < replicationFactor) {
-            logger.error("[{}] Not enough replicas in the group: {}", this.address, ring.ordered(now).size());
+            logger.error("[{}] Not enough copies in the group: {}", this.address, ring.ordered(now).size());
             send(message.sender, message.fail(address));
             return;
         }
         if (targets.get(0).equals(address)) {
             // Replicate the key, you're the key's master
-            apply(message);
+            apply(message, targets);
             pend(message, now, seq);
 
             if (!isIdempotent(message)) {
@@ -121,14 +123,16 @@ public class KVNodeImpl implements KVNode {
         }
     }
 
-    private Message apply(Message message) {
+    private Message apply(Message message, List<Address> replicas) {
         switch (message.type) {
             case READ:
                 String val = kv.read(message.key);
                 logger.debug("[{}] read made key={} value={}", this.address, message.key, val);
                 return message.value(val);
+            case REPLICATE:
             case CREATE:
                 kv.create(message.key, message.value);
+                copies.put(message.key, replicas);
                 logger.debug("[{}] create saved key={} value={}", this.address, message.key, message.value);
                 return message.ack();
             case UPDATE:
@@ -137,6 +141,7 @@ public class KVNodeImpl implements KVNode {
                 return message.ack();
             case DELETE:
                 kv.delete(message.key);
+                copies.remove(message.key);
                 logger.debug("[{}] delete saved key={}", this.address, message.key);
                 return message.ack();
             default:
@@ -173,7 +178,7 @@ public class KVNodeImpl implements KVNode {
             check(message, now);
         } else {
             if (message.replica) {
-                Message reply = apply(message);
+                Message reply = apply(message, replication.pick(message.key, now));
                 send(message.sender, reply);
             } else {
                 replicate(message, now);
@@ -181,11 +186,35 @@ public class KVNodeImpl implements KVNode {
         }
     }
 
+    private void rebalance(long now) {
+        Set<Address> failed = ring.failed(now).stream()
+                .map(m -> m.address)
+                .collect(Collectors.toSet());
+
+        if (failed.isEmpty()) {
+            return;
+        }
+
+        for (Map.Entry<String, List<Address>> e : copies.entrySet()) {
+            final String key = e.getKey();
+
+            Set<Address> stored = new HashSet<>(e.getValue());
+            List<Address> targets = replication.pick(key, now);
+
+            if (! stored.containsAll(targets)) {
+                seq += 1;
+                Message message = new Message(Message.Type.REPLICATE, seq, address, key, kv.read(key));
+                replicate(message, now);
+            }
+        }
+    }
+
     @Override
-    public void handle(Message message) {
+    synchronized public void handle(Message message) {
         logger.debug("[{}] Received: {}", address, message);
         final long now = tick();
         cleanup(now);
+        rebalance(now);
         if (bufferedRequests.containsKey(message.key) && !message.replica) {
             buffer(message);
         } else {
