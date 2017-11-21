@@ -106,7 +106,7 @@ public class KVRemoteClient implements KVStore<String, String> {
 
     public static void main(String args[]) throws InterruptedException {
         KVRemoteClient client = new KVRemoteClient(
-                new RemoteAddress("127.0.0.1", 9999),
+                new RemoteAddress("127.0.0.1", 10000),
                 Arrays.asList(
                         new RemoteAddress("127.0.0.1", 10010),
                         new RemoteAddress("127.0.0.1", 10020),
@@ -114,7 +114,7 @@ public class KVRemoteClient implements KVStore<String, String> {
                 ),
                 new UdpNetwork(), System::currentTimeMillis);
 
-        for (int i=0; i<100; i++) {
+        for (int i=0; i<1000; i++) {
             String key = UUID.randomUUID().toString();
             boolean cr = client.create(key, "0");
             String r1 = Optional.ofNullable(client.read(key)).orElse("null");
@@ -123,7 +123,10 @@ public class KVRemoteClient implements KVStore<String, String> {
             boolean dl = client.delete(key);
             String r3 = Optional.ofNullable(client.read(key)).orElse("null");
 
+            if (i % 10 == 0) System.out.print(".");
+
             if (!(cr && up && dl) || !(r1.equals("0") && r2.equals("1") && r3.equals("null"))) {
+                System.out.println("i=" + i);
                 System.out.println("    key: " + key);
                 System.out.println("created: " + cr);
                 System.out.println("  read1: " + r1);
