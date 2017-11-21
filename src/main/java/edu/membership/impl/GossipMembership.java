@@ -42,7 +42,7 @@ public class GossipMembership implements Membership {
         }
     }
 
-    private void cleanup(long now) {
+    private List<Member> cleanup(long now) {
         Set<String> failed = new HashSet<>();
         for (Map.Entry<String, Member> entry : members.entrySet()) {
             if (entry.getValue().address.equals(self)) continue;
@@ -51,18 +51,26 @@ public class GossipMembership implements Membership {
                 logger.debug("[{} T={}] Member {} detected as failed", TAG, now, entry.getKey());
             }
         }
+        List<Member> result = new ArrayList<>();
         for (String id : failed) {
             if (now - members.get(id).timestamp >= timeFailedMillis + timeCleanupMillis) {
                 members.remove(id);
+                result.add(members.get(id));
                 logger.info("[{} T={}] Member {} removed from member list", TAG, now, id);
             }
         }
+        return result;
     }
 
     @Override
     public List<Member> list(long now) {
         cleanup(now);
         return new ArrayList<>(members.values());
+    }
+
+    @Override
+    public List<Member> failed(long now) {
+        return cleanup(now);
     }
 
     @Override

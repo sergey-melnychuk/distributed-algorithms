@@ -65,6 +65,11 @@ public class HashRing implements Ring<String> {
     }
 
     @Override
+    public List<Member> failed(long now) {
+        return membership.failed(now);
+    }
+
+    @Override
     public void reset() {
         membership.reset();
     }
