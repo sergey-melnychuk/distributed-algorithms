@@ -40,7 +40,7 @@ class NodeImplTest {
     }
 
     @Test
-    void fullFlow() {
+    void createReadUpdateReadDeleteRead() {
         Address selfAddr = makeAddress(10010);
         Address rep1Addr = makeAddress(10020);
         Address rep2Addr = makeAddress(10030);
