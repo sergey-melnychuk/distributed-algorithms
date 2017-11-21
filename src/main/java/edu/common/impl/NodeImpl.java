@@ -18,9 +18,10 @@ public class NodeImpl implements Network.Node {
     private final Address address;
     private final MemberNode memberNode;
     private final KVNode keyvalNode;
+    private final Ring<String> ring;
 
     public NodeImpl(Address address, Network network, Supplier<Long> clock, long timeFailedMillis, long timeCleanupMillis, long timeoutMillis, int replicationFactor) {
-        final Ring<String> ring = new HashRing(Byte.MAX_VALUE, new GossipMembership(address, timeFailedMillis, timeCleanupMillis));
+        this.ring = new HashRing(Byte.MAX_VALUE, new GossipMembership(address, timeFailedMillis, timeCleanupMillis));
         this.memberNode = new GossipNode(address, network, ring, clock);
         this.keyvalNode = new KVNodeImpl(address, network, ring, clock, timeoutMillis, replicationFactor);
         this.address = address;
@@ -45,6 +46,11 @@ public class NodeImpl implements Network.Node {
     @Override
     public List<Address> peers() {
         return memberNode.peers();
+    }
+
+    @Override
+    public Ring<String> ring() {
+        return ring;
     }
 
     @Override

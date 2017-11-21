@@ -1,5 +1,7 @@
 package edu.common.api;
 
+import edu.kv.api.Ring;
+
 import java.util.List;
 import java.util.Queue;
 
@@ -18,6 +20,8 @@ public interface Network {
         void join(Address leader);
 
         List<Address> peers();
+
+        Ring<String> ring();
 
         void fail();
 
