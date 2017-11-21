@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
 
 public class KVNodeImpl implements KVNode {
@@ -27,6 +28,8 @@ public class KVNodeImpl implements KVNode {
 
     private long seq = 0L;
     private final ConcurrentHashMap<Long, Request> pendingRequests = new ConcurrentHashMap<>();
+
+    private final ConcurrentHashMap<String, ConcurrentLinkedQueue<Message>> bufferedRequests = new ConcurrentHashMap<>();
 
     public KVNodeImpl(Address address, Network network, Supplier<Long> clock, Ring<String> ring) {
         this(address, network, ring, clock, 100, 3);
@@ -70,7 +73,7 @@ public class KVNodeImpl implements KVNode {
         }
     }
 
-    private void check(Message message) {
+    private void check(Message message, long now) {
         if (message.type != Message.Type.ACK) {
             return;
         }
@@ -81,6 +84,8 @@ public class KVNodeImpl implements KVNode {
                 logger.debug("[{}] Ack received and quorum reached: {}", this.address, req);
                 send(req.msg.sender, req.msg.value(message.value).ok(address));
                 pendingRequests.remove(message.seqNr);
+
+                release(message.key, now);
             } else {
                 logger.debug("[{}] Ack received: {}", this.address, req);
                 pendingRequests.replace(message.seqNr, req.inc());
@@ -93,10 +98,17 @@ public class KVNodeImpl implements KVNode {
         if (targets.size() < replicationFactor) {
             logger.error("[{}] Not enough replicas in the group: {}", this.address, ring.ordered(now).size());
             send(message.sender, message.fail(address));
-        } else if (targets.get(0).equals(address)) {
+            return;
+        }
+        if (targets.get(0).equals(address)) {
             // Replicate the key, you're the key's master
             apply(message);
             pend(message, now, seq);
+
+            if (!isIdempotent(message)) {
+                block(message.key);
+            }
+
             Message replica = message.replica(address).accept(seq);
             for (int i=1; i<targets.size(); i++) {
                 logger.debug("[{}] Send replication to {}", this.address, targets.get(i));
@@ -132,14 +144,33 @@ public class KVNodeImpl implements KVNode {
         }
     }
 
-    @Override
-    public void handle(Message message) {
-        logger.debug("[{}] Received: {}", address, message);
-        final long now = tick();
+    private boolean isIdempotent(Message message) {
+        return message.type == Message.Type.READ;
+    }
 
-        cleanup(now);
+    private void block(String key) {
+        bufferedRequests.put(key, new ConcurrentLinkedQueue<>());
+    }
+
+    private void buffer(Message message) {
+        bufferedRequests.get(message.key).offer(message);
+        logger.debug("Message buffered: {}", message);
+    }
+
+    private void release(String key, long now) {
+        if (bufferedRequests.containsKey(key)) {
+            final ConcurrentLinkedQueue<Message> q = bufferedRequests.get(key);
+            while (!q.isEmpty()) {
+                final Message m = q.poll();
+                process(m, now);
+            }
+            bufferedRequests.remove(key);
+        }
+    }
+
+    private void process(Message message, long now) {
         if (message.type == Message.Type.ACK) {
-            check(message);
+            check(message, now);
         } else {
             if (message.replica) {
                 Message reply = apply(message);
@@ -147,6 +178,18 @@ public class KVNodeImpl implements KVNode {
             } else {
                 replicate(message, now);
             }
+        }
+    }
+
+    @Override
+    public void handle(Message message) {
+        logger.debug("[{}] Received: {}", address, message);
+        final long now = tick();
+        cleanup(now);
+        if (bufferedRequests.containsKey(message.key) && !message.replica) {
+            buffer(message);
+        } else {
+            process(message, now);
         }
     }
 
