@@ -6,7 +6,13 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="INFO">
+        <Logger name="edu.kv" level="ERROR" additivity="false">
+            <AppenderRef ref="CONSOLE" />
+        </Logger>
+        <Logger name="edu.membership" level="ERROR" additivity="false">
+            <AppenderRef ref="CONSOLE" />
+        </Logger>
+        <Root level="ERROR">
             <AppenderRef ref="CONSOLE"/>
         </Root>
     </Loggers>
