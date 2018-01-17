@@ -9,7 +9,7 @@ To see the logging message shown here, change logger's "edu.membership" level to
 $ ./gradlew clean build
 ```
 
-Run membership protocol for 3 nodes locally:
+Run membership protocol for 3 nodes locally (in terminals T{1,2,3} respectively):
 
 T1:
 ```
