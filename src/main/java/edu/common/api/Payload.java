@@ -3,9 +3,9 @@ package edu.common.api;
 public class Payload {
 
     public final edu.membership.api.Message member;
-    public final edu.kv.api.Message keyval;
+    public final edu.kvstore.api.Message keyval;
 
-    private Payload(edu.membership.api.Message member, edu.kv.api.Message keyval) {
+    private Payload(edu.membership.api.Message member, edu.kvstore.api.Message keyval) {
         this.member = member;
         this.keyval = keyval;
     }
@@ -14,7 +14,7 @@ public class Payload {
         return new Payload(member, null);
     }
 
-    public static Payload of(edu.kv.api.Message keyval) {
+    public static Payload of(edu.kvstore.api.Message keyval) {
         return new Payload(null, keyval);
     }
 

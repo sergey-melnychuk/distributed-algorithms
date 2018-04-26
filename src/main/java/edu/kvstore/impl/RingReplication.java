@@ -1,7 +1,7 @@
-package edu.kv.impl;
+package edu.kvstore.impl;
 
-import edu.kv.api.Replication;
-import edu.kv.api.Ring;
+import edu.kvstore.api.Replication;
+import edu.kvstore.api.Ring;
 import edu.common.api.Address;
 
 import java.util.ArrayList;

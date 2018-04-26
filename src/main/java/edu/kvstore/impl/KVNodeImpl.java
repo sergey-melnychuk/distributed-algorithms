@@ -1,9 +1,9 @@
-package edu.kv.impl;
+package edu.kvstore.impl;
 
 import edu.common.api.Address;
 import edu.common.api.Network;
 import edu.common.api.Payload;
-import edu.kv.api.*;
+import edu.kvstore.api.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

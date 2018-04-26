@@ -1,8 +1,7 @@
-package edu.kv.impl;
+package edu.kvstore.impl;
 
-import edu.kv.api.KVStore;
+import edu.kvstore.api.KVStore;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 

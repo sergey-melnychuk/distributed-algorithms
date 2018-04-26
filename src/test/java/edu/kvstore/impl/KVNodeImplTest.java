@@ -1,12 +1,12 @@
-package edu.kv.impl;
+package edu.kvstore.impl;
 
 import edu.common.api.Address;
 import edu.common.api.Network;
 import edu.common.impl.LocalAddress;
 import edu.common.impl.LocalNetwork;
-import edu.kv.api.KVNode;
-import edu.kv.api.Message;
-import edu.kv.api.Ring;
+import edu.kvstore.api.KVNode;
+import edu.kvstore.api.Message;
+import edu.kvstore.api.Ring;
 import edu.membership.api.Member;
 import edu.membership.impl.GossipMembership;
 import org.junit.jupiter.api.Test;

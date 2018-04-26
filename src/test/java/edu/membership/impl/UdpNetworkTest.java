@@ -25,8 +25,8 @@ class UdpNetworkTest {
                             new Member(new RemoteAddress("127.0.0.1", 10000), 20001000, 1000),
                             new Member(new RemoteAddress("127.0.0.1", 10001), 20001000,1000)
                     ))),
-            Payload.of(new edu.kv.api.Message(
-                    edu.kv.api.Message.Type.CREATE,
+            Payload.of(new edu.kvstore.api.Message(
+                    edu.kvstore.api.Message.Type.CREATE,
                     123L,
                     sender,
                     "key",

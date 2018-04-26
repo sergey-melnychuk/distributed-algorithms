@@ -3,7 +3,7 @@ package edu.common.impl;
 import edu.common.api.Address;
 import edu.common.api.Network;
 import edu.common.api.Payload;
-import edu.kv.api.Message;
+import edu.kvstore.api.Message;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;

@@ -1,12 +1,12 @@
-package edu.kv.impl;
+package edu.kvstore.impl;
 
 import edu.common.api.Address;
 import edu.common.api.Network;
 import edu.common.api.Payload;
 import edu.common.impl.RemoteAddress;
 import edu.common.impl.UdpNetwork;
-import edu.kv.api.KVStore;
-import edu.kv.api.Message;
+import edu.kvstore.api.KVStore;
+import edu.kvstore.api.Message;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

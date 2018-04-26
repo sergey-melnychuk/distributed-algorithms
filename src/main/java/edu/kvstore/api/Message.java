@@ -1,4 +1,4 @@
-package edu.kv.api;
+package edu.kvstore.api;
 
 import edu.common.api.Address;
 

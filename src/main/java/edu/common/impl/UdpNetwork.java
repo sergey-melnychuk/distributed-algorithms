@@ -52,11 +52,11 @@ public class UdpNetwork implements Network {
         }
 
         int typeIdx = buffer.getInt();
-        if (typeIdx < 0 || typeIdx >= edu.kv.api.Message.Type.values().length) {
+        if (typeIdx < 0 || typeIdx >= edu.kvstore.api.Message.Type.values().length) {
             throw new IllegalStateException("Invalid message type");
         }
 
-        edu.kv.api.Message.Type type = edu.kv.api.Message.Type.values()[typeIdx];
+        edu.kvstore.api.Message.Type type = edu.kvstore.api.Message.Type.values()[typeIdx];
 
         long seq = buffer.getLong();
 
@@ -82,7 +82,7 @@ public class UdpNetwork implements Network {
 
         boolean replica = buffer.get() > 0;
 
-        return Payload.of(new edu.kv.api.Message(type, seq, sender, key, value, replica));
+        return Payload.of(new edu.kvstore.api.Message(type, seq, sender, key, value, replica));
     }
 
     private Payload readMember(ByteBuffer buffer) {
@@ -125,7 +125,7 @@ public class UdpNetwork implements Network {
         else return readKeyval(buffer);
     }
 
-    private ByteBuffer write(edu.kv.api.Message message) {
+    private ByteBuffer write(edu.kvstore.api.Message message) {
         ByteBuffer temp = ByteBuffer.allocate(RECEIVE_BUFFER_SIZE);
         temp.put(KEYVAL);
         temp.putInt(MAGIC);

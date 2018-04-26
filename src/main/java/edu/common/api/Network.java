@@ -1,6 +1,6 @@
 package edu.common.api;
 
-import edu.kv.api.Ring;
+import edu.kvstore.api.Ring;
 
 import java.util.List;
 import java.util.Queue;
