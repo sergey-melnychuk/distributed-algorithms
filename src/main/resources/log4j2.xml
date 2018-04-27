@@ -9,7 +9,7 @@
         <Logger name="edu.kvstore" level="ERROR" additivity="false">
             <AppenderRef ref="CONSOLE" />
         </Logger>
-        <Logger name="edu.membership" level="ERROR" additivity="false">
+        <Logger name="edu.membership" level="INFO" additivity="false">
             <AppenderRef ref="CONSOLE" />
         </Logger>
         <Root level="ERROR">
