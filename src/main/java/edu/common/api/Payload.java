@@ -1,39 +1,33 @@
 package edu.common.api;
 
+import java.util.Objects;
+
 public class Payload {
 
     public final edu.membership.api.Message member;
     public final edu.kvstore.api.Message keyval;
+    public final edu.leadership.api.Message leader;
 
-    private Payload(edu.membership.api.Message member, edu.kvstore.api.Message keyval) {
+    private Payload(
+            edu.membership.api.Message member,
+            edu.kvstore.api.Message keyval,
+            edu.leadership.api.Message leader)
+    {
         this.member = member;
         this.keyval = keyval;
+        this.leader = leader;
     }
 
     public static Payload of(edu.membership.api.Message member) {
-        return new Payload(member, null);
+        return new Payload(member, null, null);
     }
 
     public static Payload of(edu.kvstore.api.Message keyval) {
-        return new Payload(null, keyval);
+        return new Payload(null, keyval, null);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Payload payload = (Payload) o;
-
-        return (member != null ? member.equals(payload.member) : payload.member == null) &&
-                (keyval != null ? keyval.equals(payload.keyval) : payload.keyval == null);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = member != null ? member.hashCode() : 0;
-        result = 31 * result + (keyval != null ? keyval.hashCode() : 0);
-        return result;
+    public static Payload of(edu.leadership.api.Message leader) {
+        return new Payload(null, null, leader);
     }
 
     @Override
@@ -41,6 +35,22 @@ public class Payload {
         return "Payload{" +
                 "member=" + member +
                 ", keyval=" + keyval +
+                ", leader=" + leader +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Payload payload = (Payload) o;
+        return Objects.equals(member, payload.member) &&
+                Objects.equals(keyval, payload.keyval) &&
+                Objects.equals(leader, payload.leader);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(member, keyval, leader);
     }
 }
