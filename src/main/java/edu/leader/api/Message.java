@@ -1,4 +1,4 @@
-package edu.leadership.api;
+package edu.leader.api;
 
 import edu.common.api.Address;
 

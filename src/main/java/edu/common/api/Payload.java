@@ -6,12 +6,12 @@ public class Payload {
 
     public final edu.membership.api.Message member;
     public final edu.kvstore.api.Message keyval;
-    public final edu.leadership.api.Message leader;
+    public final edu.leader.api.Message leader;
 
     private Payload(
             edu.membership.api.Message member,
             edu.kvstore.api.Message keyval,
-            edu.leadership.api.Message leader)
+            edu.leader.api.Message leader)
     {
         this.member = member;
         this.keyval = keyval;
@@ -26,7 +26,7 @@ public class Payload {
         return new Payload(null, keyval, null);
     }
 
-    public static Payload of(edu.leadership.api.Message leader) {
+    public static Payload of(edu.leader.api.Message leader) {
         return new Payload(null, null, leader);
     }
 

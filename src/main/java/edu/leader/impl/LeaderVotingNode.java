@@ -1,7 +1,7 @@
-package edu.leadership.impl;
+package edu.leader.impl;
 
 import edu.common.api.Address;
-import edu.leadership.api.LeaderAwareNode;
+import edu.leader.api.LeaderAwareNode;
 import edu.membership.api.Membership;
 
 import java.util.Optional;
