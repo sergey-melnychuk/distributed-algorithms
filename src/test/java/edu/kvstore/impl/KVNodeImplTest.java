@@ -7,8 +7,8 @@ import edu.common.impl.LocalNetwork;
 import edu.kvstore.api.KVNode;
 import edu.kvstore.api.Message;
 import edu.kvstore.api.Ring;
-import edu.membership.api.Member;
-import edu.membership.impl.GossipMembership;
+import edu.member.api.Member;
+import edu.member.impl.GossipMembership;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;

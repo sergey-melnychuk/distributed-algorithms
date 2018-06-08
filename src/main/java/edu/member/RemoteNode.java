@@ -1,4 +1,4 @@
-package edu.membership;
+package edu.member;
 
 import edu.common.api.Address;
 import edu.common.api.Network;
@@ -6,8 +6,6 @@ import edu.common.api.Payload;
 import edu.common.impl.NodeImpl;
 import edu.common.impl.RemoteAddress;
 import edu.common.impl.UdpNetwork;
-import edu.membership.api.*;
-import edu.membership.impl.*;
 
 import java.util.Queue;
 import java.util.concurrent.Executors;

@@ -3,8 +3,8 @@ package edu.common.impl;
 import edu.common.api.Address;
 import edu.common.api.Network;
 import edu.common.api.Payload;
-import edu.membership.api.Member;
-import edu.membership.api.Message;
+import edu.member.api.Member;
+import edu.member.api.Message;
 
 import java.io.IOException;
 import java.net.*;
@@ -156,7 +156,7 @@ public class UdpNetwork implements Network {
         return buffer;
     }
 
-    private ByteBuffer write(edu.membership.api.Message message) {
+    private ByteBuffer write(edu.member.api.Message message) {
         ByteBuffer temp = ByteBuffer.allocate(RECEIVE_BUFFER_SIZE);
         temp.put(MEMBER);
         temp.putInt(MAGIC);

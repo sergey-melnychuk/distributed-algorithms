@@ -1,4 +1,4 @@
-package edu.membership.api;
+package edu.member.api;
 
 import java.util.Arrays;
 import java.util.List;

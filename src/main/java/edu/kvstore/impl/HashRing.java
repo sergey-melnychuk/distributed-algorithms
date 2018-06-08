@@ -2,8 +2,8 @@ package edu.kvstore.impl;
 
 import edu.kvstore.api.Ring;
 import edu.common.api.Address;
-import edu.membership.api.Member;
-import edu.membership.api.Membership;
+import edu.member.api.Member;
+import edu.member.api.Membership;
 
 import java.util.Comparator;
 import java.util.List;

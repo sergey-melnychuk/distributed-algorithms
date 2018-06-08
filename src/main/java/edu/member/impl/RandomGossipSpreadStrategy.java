@@ -1,8 +1,8 @@
-package edu.membership.impl;
+package edu.member.impl;
 
 import edu.common.api.Address;
-import edu.membership.api.GossipSpreadStrategy;
-import edu.membership.api.Membership;
+import edu.member.api.GossipSpreadStrategy;
+import edu.member.api.Membership;
 
 import java.util.HashSet;
 import java.util.List;

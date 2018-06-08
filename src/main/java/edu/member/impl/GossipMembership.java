@@ -1,8 +1,8 @@
-package edu.membership.impl;
+package edu.member.impl;
 
 import edu.common.api.Address;
-import edu.membership.api.Member;
-import edu.membership.api.Membership;
+import edu.member.api.Member;
+import edu.member.api.Membership;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

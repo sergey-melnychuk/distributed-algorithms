@@ -1,10 +1,10 @@
-package edu.membership.impl;
+package edu.member.impl;
 
 import edu.common.api.Address;
 import edu.common.impl.LocalAddress;
 import edu.common.impl.LocalNetwork;
 import edu.common.api.Network;
-import edu.membership.api.*;
+import edu.member.api.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;

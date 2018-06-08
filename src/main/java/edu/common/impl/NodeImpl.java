@@ -7,9 +7,9 @@ import edu.kvstore.api.KVNode;
 import edu.kvstore.api.Ring;
 import edu.kvstore.impl.HashRing;
 import edu.kvstore.impl.KVNodeImpl;
-import edu.membership.api.MemberNode;
-import edu.membership.impl.GossipMembership;
-import edu.membership.impl.GossipNode;
+import edu.member.api.MemberNode;
+import edu.member.impl.GossipMembership;
+import edu.member.impl.GossipNode;
 
 import java.util.List;
 import java.util.function.Supplier;

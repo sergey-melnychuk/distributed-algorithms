@@ -2,7 +2,7 @@ package edu.leader.impl;
 
 import edu.common.api.Address;
 import edu.leader.api.LeaderAwareNode;
-import edu.membership.api.Membership;
+import edu.member.api.Membership;
 
 import java.util.Optional;
 import java.util.function.Supplier;

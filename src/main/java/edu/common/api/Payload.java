@@ -4,12 +4,12 @@ import java.util.Objects;
 
 public class Payload {
 
-    public final edu.membership.api.Message member;
+    public final edu.member.api.Message member;
     public final edu.kvstore.api.Message keyval;
     public final edu.leader.api.Message leader;
 
     private Payload(
-            edu.membership.api.Message member,
+            edu.member.api.Message member,
             edu.kvstore.api.Message keyval,
             edu.leader.api.Message leader)
     {
@@ -18,7 +18,7 @@ public class Payload {
         this.leader = leader;
     }
 
-    public static Payload of(edu.membership.api.Message member) {
+    public static Payload of(edu.member.api.Message member) {
         return new Payload(member, null, null);
     }
 

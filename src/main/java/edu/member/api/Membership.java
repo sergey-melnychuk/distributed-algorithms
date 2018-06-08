@@ -1,4 +1,4 @@
-package edu.membership.api;
+package edu.member.api;
 
 import edu.common.api.Address;
 

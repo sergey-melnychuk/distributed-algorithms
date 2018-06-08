@@ -1,8 +1,8 @@
 package edu.kvstore.impl;
 
 import edu.common.api.Address;
-import edu.membership.api.Member;
-import edu.membership.impl.GossipMembership;
+import edu.member.api.Member;
+import edu.member.impl.GossipMembership;
 import edu.common.impl.LocalAddress;
 import org.junit.jupiter.api.Test;
 

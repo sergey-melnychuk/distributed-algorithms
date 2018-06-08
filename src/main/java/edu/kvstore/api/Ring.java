@@ -1,7 +1,7 @@
 package edu.kvstore.api;
 
 import edu.common.api.Address;
-import edu.membership.api.Membership;
+import edu.member.api.Membership;
 
 import java.util.List;
 
