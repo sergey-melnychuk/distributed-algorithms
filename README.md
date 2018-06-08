@@ -11,7 +11,7 @@ Run membership protocol for 3 nodes locally (in terminals T{1,2,3} respectively)
 
 T1:
 ```
-$ ./run.sh 10000
+$ java -jar build/libs/distributed-algorithms.jar 10000
 13:52:47.116 INFO  - [127.0.0.1:10000 T=1516193567112] Added new member Member{addr=RemoteAddress{addr=[127, 0, 0, 1], port=10000},ts=1516193567112,hb=0}
 # now run T2
 13:52:49.823 INFO  - [127.0.0.1:10000 T=1516193569822] Added new member Member{addr=RemoteAddress{addr=[127, 0, 0, 1], port=10001},ts=1516193569795,hb=0}
@@ -21,7 +21,7 @@ $ ./run.sh 10000
 
 T2:
 ```
-$ ./run.sh 10001 127.0.0.1:10000
+$ java -jar build/libs/distributed-algorithms.jar 127.0.0.1:10000
 13:52:49.798 INFO  - [127.0.0.1:10001 T=1516193569795] Added new member Member{addr=RemoteAddress{addr=[127, 0, 0, 1], port=10001},ts=1516193569795,hb=0}
 13:52:50.008 INFO  - [127.0.0.1:10001 T=1516193570007] Added new member Member{addr=RemoteAddress{addr=[127, 0, 0, 1], port=10000},ts=1516193569927,hb=28}
 # now run T3
@@ -32,7 +32,7 @@ $ ./run.sh 10001 127.0.0.1:10000
 
 T3:
 ```
-$ ./run.sh 10002 127.0.0.1:10000
+$ java -jar build/libs/distributed-algorithms.jar 10002 127.0.0.1:10000
 13:52:51.775 INFO  - [127.0.0.1:10002 T=1516193571770] Added new member Member{addr=RemoteAddress{addr=[127, 0, 0, 1], port=10002},ts=1516193571770,hb=0}
 13:52:51.985 INFO  - [127.0.0.1:10002 T=1516193571985] Added new member Member{addr=RemoteAddress{addr=[127, 0, 0, 1], port=10000},ts=1516193571922,hb=48}
 13:52:51.986 INFO  - [127.0.0.1:10002 T=1516193571985] Added new member Member{addr=RemoteAddress{addr=[127, 0, 0, 1], port=10001},ts=1516193571823,hb=20}
